@@ -70,7 +70,7 @@ Edit `input/store.json` and put your Shopify store collection or product URLs in
 4. **Check the output:**
 
    ```bash
-  data/result.json
+   data/result.json
 
     ```
 
