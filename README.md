@@ -43,4 +43,43 @@ Edit `input/store.json` and put your Shopify store collection or product URLs in
 ```
 - That file will contain all the extracted size chart data in structured JSON format.
 
-  ### 💻 Local Environment Setup
+### 💻 Local Environment Setup
+
+1. **Clone the repository:**
+
+   ```bash
+   git clone https://github.com/raviverma199/Shopify-Size-Chart-Extractor.git
+   cd Shopify-Size-Chart-Extractor
+
+   ```
+
+2. **Install Dependencies:**
+
+   ```bash
+   npm install
+
+   ```
+
+3. **Run the following command:**
+
+   ```bash
+   npm start
+
+   ```
+
+4. **Check the output:**
+
+   ```bash
+  data/result.json
+
+    ```
+
+### 📌 Note:
+- In the file src/crawler.ts, the URL pattern is currently set to a default collection path like:
+
+  ```bash
+  const url = `https://${this.store}/collections/kurtas-for-women`;
+
+    ```
+- This is used to ensure consistent scraping, since not all product or homepage URLs work reliably across different Shopify stores.
+If you want to extract the size chart from a different collection or page, you can simply change the path segment (kurtas-for-women) to any valid page on that store, such as co-ord-sets, dresses, or tops.
