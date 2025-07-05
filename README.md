@@ -81,5 +81,5 @@ Edit `input/store.json` and put your Shopify store collection or product URLs in
   const url = `https://${this.store}/collections/kurtas-for-women`;
 
     ```
-- This is used to ensure consistent scraping, since not all product or homepage URLs work reliably across different Shopify stores.
+- This default is used to ensure consistent scraping because not all Shopify stores expose product or homepage data the same way.
 If you want to extract the size chart from a different collection or page, you can simply change the path segment (kurtas-for-women) to any valid page on that store, such as co-ord-sets, dresses, or tops.
