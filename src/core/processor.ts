@@ -1,6 +1,7 @@
-import puppeteer from 'puppeteer';
-import { Crawler } from './crawler';
-import { BrowserExtractor } from './browser';
+import puppeteer from "puppeteer";
+import { Crawler } from "./crawler";
+import { BrowserExtractor } from "./browser";
+import { chunkArray, sleep } from "../utils/helper";
 
 export class Processor {
   private crawler: Crawler;
@@ -10,31 +11,59 @@ export class Processor {
   }
 
   async process() {
-const browser = await puppeteer.launch({ headless: true, args: ['--no-sandbox'] });
-const extractor = new BrowserExtractor(browser);
-    const products: any[] = [];
+    try {
+      const browser = await puppeteer.launch({
+        headless: true,
+        args: ["--no-sandbox", "--disable-setuid-sandbox"],
+      });
 
-    const links = await this.crawler.getProductLinks();
+      const extractor = new BrowserExtractor(browser);
 
-    const page = await browser.newPage(); // ✅ You created page here
+      const productLinks = await this.crawler.getProductLinks();
 
-    for (const url of links.slice(0, 5)) {
-      try {
-        const product = await extractor.extract(url, page); // ❌ You are NOT passing `page`
-        products.push(product);
-        await new Promise(r => setTimeout(r, 500));
-      } catch (e) {
-        console.warn(`⚠️ Failed to extract product: ${url}`);
-        console.error(e);
+      // Use first 20 links for example
+      const links = productLinks.slice(0, 20);
+
+      const concurrencyLimit = 5;
+      const chunks = chunkArray(links, concurrencyLimit);
+
+      const results: any[] = [];
+
+      for (const group of chunks) {
+        const pages = await Promise.all(
+          Array.from({ length: group.length }, () => browser.newPage())
+        );
+
+        const groupResults = await Promise.all(
+          group.map((url, idx) =>
+            extractor.extract(url, pages[idx]).catch((e) => {
+              console.warn(`Failed for ${url}:`, e);
+              return null;
+            })
+          )
+        );
+
+        results.push(...groupResults.filter(Boolean));
+
+        // Close pages to free memory
+        await Promise.all(pages.map((p) => p.close()));
+
+        // Optional delay between chunks to prevent getting blocked
+        await sleep(1000);
       }
+
+      await browser.close();
+
+      return {
+        store_name: this.store,
+        products: results,
+      };
+    } catch (error) {
+      console.error("⚠️ Error during processing:", error);
+      return {
+        store_name: this.store,
+        products: [],
+      };
     }
-
-    await page.close(); // ✅ Closing the page
-    await browser.close(); // ✅ Closing the browser
-
-    return {
-      store_name: this.store,
-      products
-    };
   }
 }
