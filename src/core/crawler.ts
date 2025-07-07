@@ -21,7 +21,7 @@ export class Crawler {
       );
 
       const url = `https://${this.store}/collections/kurtas-for-women`;
-      console.log(`🌐 Visiting: ${url}`);
+      console.log(`Visiting: ${url}`);
 
       // Go to the collection page
       await retryWithBackoff(() =>
@@ -72,10 +72,10 @@ export class Crawler {
       // close the browser
       await browser.close();
 
-      console.log(`🔗 Found ${links.length} product links`);
+      console.log(`Found ${links.length} product links`);
       return links;
     } catch (error) {
-      console.error("❌ Error while crawling:", error);
+      console.error("Error while crawling:", error);
       return [];
     }
   }
